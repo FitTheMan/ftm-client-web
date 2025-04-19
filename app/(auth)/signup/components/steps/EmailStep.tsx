@@ -78,7 +78,7 @@ const EmailStep = ({ email, onEmailSubmit }: EmailStepProps) => {
   // 이메일 인증 요청 핸들러
   const handleSendAuthentication = () => {
     if (!isEmailValid) {
-      setMessage("먼저 이메일 중복 확인을 해주세요.");
+      setMessage("이메일 중복확인을 위한 버튼을 눌러주세요.");
       return;
     }
     sendAuthenticationMutation.mutate(inputEmail);
@@ -125,7 +125,7 @@ const EmailStep = ({ email, onEmailSubmit }: EmailStepProps) => {
           <div className="flex-1">
             {message && (
               <p
-                className={`ml-4 text-xs ${
+                className={`text-xs ${
                   message.includes("사용 가능")
                     ? "text-green-500"
                     : "text-red-error"
@@ -146,7 +146,7 @@ const EmailStep = ({ email, onEmailSubmit }: EmailStepProps) => {
       </div>
 
       {/* 인증 버튼들 */}
-      <div className="mt-8 w-full max-w-[392px] space-y-4">
+      <div className="mt-24 w-full max-w-[392px] space-y-4">
         <button
           onClick={handleSendAuthentication}
           className={getAuthButtonClassName()}
