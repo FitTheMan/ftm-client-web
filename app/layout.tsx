@@ -1,18 +1,21 @@
 import "./globals.css";
-import QueryProvider from "./Provider";
+import { ReactNode } from "react";
 import ModalContainer from "@/components/modals/ModalContainer";
+import SessionGuard from "@/components/guards/SessionGuard";
+import QueryProvider from "./Provider";
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="ko">
       <body>
         <QueryProvider>
-          {children}
           <ModalContainer />
+          <SessionGuard />
+          {children}
         </QueryProvider>
       </body>
     </html>
