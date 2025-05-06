@@ -1,3 +1,4 @@
+import Header from "@/components/Header";
 import "./globals.css";
 import { ReactNode } from "react";
 import ModalContainer from "@/components/modals/ModalContainer";
@@ -13,6 +14,8 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <QueryProvider>
+          <Header />
+          {children}
           <ModalContainer />
           <SessionGuard />
           {children}
