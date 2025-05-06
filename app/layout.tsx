@@ -18,7 +18,6 @@ export default function RootLayout({
           {children}
           <ModalContainer />
           <SessionGuard />
-          {children}
         </QueryProvider>
       </body>
     </html>
