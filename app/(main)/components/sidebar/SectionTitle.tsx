@@ -11,7 +11,7 @@ export default function SectionTitle({ icon, title }: SectionTitleProps) {
     //   <div className="mr-2 text-gray-600">{icon}</div>
     //   <h3 className="text-lg font-medium">{title}</h3>
     // </div>
-    <div className="flex h-12 w-72 items-center pl-5 pr-5">
+    <div className="flex h-12 w-72 items-center pr-5">
       <div className="flex h-6 w-6 items-center justify-center rounded bg-[#f5f5f7]">
         {/* <img
           className="h-4 w-4"
