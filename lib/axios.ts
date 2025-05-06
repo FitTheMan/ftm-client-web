@@ -6,10 +6,11 @@ import axios, {
 import { ROUTES } from "@/constants/routes";
 import { openAlert } from "@/utils/modal/OpenAlert";
 import { clearUser } from "@/stores/AuthStore";
+import { isServer } from "@/constants/environment";
 
 // 비인증용 (쿠키 없음)
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: isServer ? process.env.NEXT_PUBLIC_API_URL : "",
   headers: {
     "Content-Type": "application/json",
   },
@@ -18,7 +19,7 @@ const api: AxiosInstance = axios.create({
 
 // 인증용 (쿠키 포함)
 export const authApi: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: isServer ? process.env.NEXT_PUBLIC_API_URL : "",
   headers: {
     "Content-Type": "application/json",
   },
@@ -40,12 +41,12 @@ const errorHandler = async (error: AxiosError) => {
 
   // 401발생 시 로컬스토리지만 지워주면 useLocalStorageWatcher가 처리?
   // TODO: 세션 만료 시 테스트 필요
-  if (typeof window !== "undefined") {
+  if (!isServer) {
     if (status === 401) {
       clearUser();
-      // await openAlert("로그인이 만료되었습니다. 다시 로그인해주세요.", () => {
-      //   window.location.href = ROUTES.SIGNIN;
-      // });
+      await openAlert("로그인이 만료되었습니다. 다시 로그인해주세요.", () => {
+        window.location.href = ROUTES.SIGNIN;
+      });
 
       //  401 에러일 경우 Promise를 영원히 pending 상태로 만들어서 mutation에 에러를 안 넘긴다
       return new Promise(() => {});
