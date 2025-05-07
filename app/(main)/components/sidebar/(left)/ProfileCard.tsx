@@ -1,6 +1,7 @@
 "use client";
 import Button from "@/components/ui/Button";
 import { useAuthStore } from "@/stores/AuthStore";
+import { openSigninSelectModal } from "@/utils/modal/OpenSigninSelectModal";
 import React from "react";
 
 const ProfileCard: React.FC = () => {
@@ -11,7 +12,12 @@ const ProfileCard: React.FC = () => {
       <div className="flex h-[154px] w-72 flex-col items-center justify-center rounded-xl bg-[#F5F5F7] p-4">
         <div className="mb-2 text-center text-sm">로그인하고</div>
         <div className="mb-4 text-center text-sm">맞춤 콘텐츠를 받아보세요</div>
-        <Button variant="primary" size="sm" className="h-[38px] w-[138px]">
+        <Button
+          variant="primary"
+          size="sm"
+          className="h-[38px] w-[138px]"
+          onClick={() => openSigninSelectModal()}
+        >
           핏더맨 시작하기
         </Button>
       </div>
