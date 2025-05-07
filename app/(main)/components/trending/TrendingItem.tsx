@@ -13,8 +13,8 @@ interface TrendingItemProps {
 
 export default function TrendingItem({
   number,
-  title,
-  profileImage,
+  // title,
+  // profileImage,
   stats,
 }: TrendingItemProps) {
   return (

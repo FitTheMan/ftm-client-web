@@ -4,13 +4,11 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/AuthStore";
 import { checkSessionValidity } from "@/app/(auth)/signin/api";
 import { openAlert } from "@/utils/modal/OpenAlert";
-import { useSignOut } from "@/app/(auth)/signin/hooks/useSignOut";
 import { ROUTES } from "@/constants/routes";
 
 export const useSessionValidityCheck = () => {
   const router = useRouter();
   const { user, clearUser } = useAuthStore((state) => state);
-  const { mutate: logout } = useSignOut();
 
   const { data: isValid } = useQuery<boolean>({
     queryKey: ["sessionValidity"],
@@ -25,5 +23,5 @@ export const useSessionValidityCheck = () => {
         clearUser(), router.push(ROUTES.SIGNIN);
       });
     }
-  }, [user, isValid, router, clearUser]);
+  }, [user, isValid, router]);
 };

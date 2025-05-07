@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { FiTrendingUp } from "react-icons/fi";
 import SectionTitle from "../SectionTitle";
 import TrendingItem from "../../trending/TrendingItem";
 import Pagination from "../../../../../components/ui/Pagination";
@@ -30,7 +29,7 @@ export default function RightSidebar() {
     <div className="mr-[18px] flex h-auto min-h-[558px] w-[324px] flex-col gap-8 p-4">
       {/* 트렌딩 픽더맨 섹션 */}
       <div className="w-[288px]">
-        <SectionTitle icon={<FiTrendingUp />} title="트렌딩핏더맨" />
+        <SectionTitle title="트렌딩핏더맨" />
         <div className="relative h-[232px] w-72 rounded-3xl bg-[#f5f5f7] p-6">
           <ul className="flex flex-col space-y-4">
             {trendingItems.map((item) => (
@@ -57,7 +56,7 @@ export default function RightSidebar() {
         </div>
       </div> */}
       <div className="relative w-72">
-        <SectionTitle icon={<FiTrendingUp />} title="트렌딩 게시물" />
+        <SectionTitle title="트렌딩 게시물" />
         <div className="h-full w-full rounded-3xl bg-[#f5f5f7] p-5">
           <ul className="flex flex-col space-y-[38px]">
             {trendingPosts.map((post) => (

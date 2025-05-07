@@ -1,8 +1,5 @@
 import { FiSearch } from "react-icons/fi";
 import Button from "@/components/ui/Button";
-import { useEffect } from "react";
-import { getUser } from "@/stores/AuthStore";
-import { openSigninSelectModal } from "@/utils/modal/OpenSigninSelectModal";
 import SectionHeader from "../components/header/SectionHeader";
 
 export default function UserPick() {

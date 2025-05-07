@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { FiUser, FiBookmark, FiList, FiBarChart2 } from "react-icons/fi";
+import { FiUser, FiBookmark, FiList } from "react-icons/fi";
 import SectionTitle from "../SectionTitle";
 import SideCategoryItem from "./SideCategoryItem";
 import ProfileCard from "./ProfileCard";
@@ -18,7 +18,7 @@ export default function LeftSidebar() {
   return (
     <div className="ml-[18px] flex h-auto min-h-[558px] w-[324px] flex-col gap-[110px] p-4">
       <div className="min-h-[200px] w-[288px]">
-        <SectionTitle icon={<FiUser />} title="마이 프로필" />
+        <SectionTitle title="마이 프로필" />
         <ProfileCard />
       </div>
 
