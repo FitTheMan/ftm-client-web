@@ -1,12 +1,27 @@
 "use client";
 import { useState } from "react";
 import { FiUser, FiBookmark, FiList } from "react-icons/fi";
+import { useMutation } from "@tanstack/react-query";
+import { deleteUser } from "@/app/(auth)/signup/api";
 import SectionTitle from "../SectionTitle";
 import SideCategoryItem from "./SideCategoryItem";
 import ProfileCard from "./ProfileCard";
+import { openAlert } from "@/utils/modal/OpenAlert";
+import { clearUser } from "@/stores/AuthStore";
 
 export default function LeftSidebar() {
   const [activeMenu, setActiveMenu] = useState("유형별 추천");
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      openAlert("회원탈퇴가 완료되었습니다.");
+      clearUser();
+    },
+    onError: (error: any) => {
+      openAlert(error.response?.data?.message || "회원탈퇴에 실패했습니다.");
+    },
+  });
 
   const menuItems = [
     { id: "유형별 추천", icon: <FiUser />, label: "유형별 추천" },
@@ -35,6 +50,9 @@ export default function LeftSidebar() {
           ))}
         </ul>
       </nav>
+      <button onClick={() => deleteMutation.mutate()}>
+        회원탈퇴 API 테스트용
+      </button>
     </div>
   );
 }
