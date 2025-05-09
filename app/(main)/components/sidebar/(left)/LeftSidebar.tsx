@@ -8,6 +8,7 @@ import SideCategoryItem from "./SideCategoryItem";
 import ProfileCard from "./ProfileCard";
 import { openAlert } from "@/utils/modal/OpenAlert";
 import { clearUser } from "@/stores/AuthStore";
+import { AxiosError } from "axios";
 
 export default function LeftSidebar() {
   const [activeMenu, setActiveMenu] = useState("유형별 추천");
@@ -18,7 +19,7 @@ export default function LeftSidebar() {
       openAlert("회원탈퇴가 완료되었습니다.");
       clearUser();
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ message?: string }>) => {
       openAlert(error.response?.data?.message || "회원탈퇴에 실패했습니다.");
     },
   });
