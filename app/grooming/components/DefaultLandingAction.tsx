@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import ActionButton from "@/public/grooming-test/svgs/landing_button.svg";
+import { openSigninSelectModal } from "@/utils/modal/OpenSigninSelectModal";
+import Button from "@/components/ui/Button";
 
 const DefaultLandingAction = () => {
   return (
@@ -12,7 +16,10 @@ const DefaultLandingAction = () => {
           <p className="text-sm font-light">나의 그루밍 지수를 측정해보세요!</p>
           <ActionButton className="absolute bottom-0 left-2 max-md:hidden" />
         </Link>
-        <Link href="signup" className="relative bg-blue-300">
+        <Button
+          className="relative flex flex-col justify-start bg-blue-300 text-left"
+          onClick={() => openSigninSelectModal()}
+        >
           <h3 className="text-2xl font-bold max-md:text-lg">
             핏더맨 로그인 / 회원가입
           </h3>
@@ -20,7 +27,7 @@ const DefaultLandingAction = () => {
             새롭게 추가된 소식들을 확인해보세요!
           </p>
           <ActionButton className="absolute bottom-0 left-2 max-md:hidden" />
-        </Link>
+        </Button>
       </div>
 
       <Link
