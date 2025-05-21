@@ -4,6 +4,7 @@ import { ROUTE_CARD_TEXT } from "../constants/index";
 import DefaultIcon from "@/public/grooming-test/svgs/result_default.svg";
 import LoginIcon from "@/public/grooming-test/svgs/result_login.svg";
 import { openSigninSelectModal } from "@/utils/modal/OpenSigninSelectModal";
+import { ROUTES } from "@/constants/routes";
 
 const SignInRouteCard = () => {
   const isLogin = true;
@@ -17,7 +18,7 @@ const SignInRouteCard = () => {
     default: {
       icon: <DefaultIcon />,
       text: ROUTE_CARD_TEXT.default,
-      href: "/",
+      href: ROUTES.ROOT,
     },
   };
 

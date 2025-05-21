@@ -11,6 +11,7 @@ import {
   GroomingCheckResponse,
   GroomingCheckSelectedAnswerType,
 } from "../types";
+import { ROUTES } from "@/constants/routes";
 
 //TODO: 서버 api 캐싱 관련 논의 (react query 사용)
 const GroomingCheck = ({
@@ -113,7 +114,9 @@ const GroomingCheck = ({
 
   const onClickResult = () => {
     router.push(
-      `/grooming/result/${encodeURIComponent(JSON.stringify(selectedAnswers))}`
+      `${ROUTES.GROOMING_RESULT}/${encodeURIComponent(
+        JSON.stringify(selectedAnswers)
+      )}`
     );
   };
 
