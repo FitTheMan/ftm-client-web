@@ -14,7 +14,7 @@ const LINK_LIST = [
 
 const Page = () => {
   return (
-    <SectionHeader title="마이페이지">
+    <SectionHeader title="마이페이지" isMain>
       <section className="flex gap-6">
         {LINK_LIST.map((link) => (
           <LinkButton key={link.title} title={link.title} href={link.href} />
