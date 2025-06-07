@@ -1,7 +1,11 @@
 "use client";
 
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { createGroomingCheckResult } from "@/app/grooming/check/api";
+import {
+  createGroomingCheckResult,
+  saveGroomingCheckResult,
+} from "@/app/grooming/check/api";
 import {
   GroomingCheckResultResponse,
   GroomingCheckResultGradesType,
@@ -10,7 +14,7 @@ import {
 } from "@/app/grooming/check/types";
 import GradeCard from "./GradeCard";
 import SignInRouteCard from "./SignInRouteCard";
-
+import { UserInfo } from "@/types/user";
 const ResultView = ({
   answers,
 }: {
@@ -24,7 +28,34 @@ const ResultView = ({
   const {
     grades = {} as GroomingCheckResultGradesType,
     level = {} as LevelType,
+    scores = {} as Record<string, number>,
   } = data?.data || {};
+
+  // 사이드 이펙트 제거 예정
+  useEffect(() => {
+    const isUser = localStorage.getItem("userInfo");
+
+    if (isUser) {
+      const { state } = JSON.parse(isUser);
+      const { user: userInfo } = state as { user: UserInfo };
+
+      const saveRequestData = {
+        userId: userInfo.id,
+        groomingLevelId: level.groomingLevelId,
+        totalScore: Object.values(scores).reduce((acc, curr) => acc + curr, 0),
+        results: answers.map(({ questionId, answerIds }) => ({
+          questionId,
+          answerIds,
+        })),
+      };
+
+      try {
+        saveGroomingCheckResult(saveRequestData);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }, [data]);
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -40,10 +71,6 @@ const ResultView = ({
             <h3 className="text-4xl text-white max-sm:text-[28px]">
               {level.spicyLevelName}
             </h3>
-            <p className="text-xl text-[#AEC0DE] max-sm:text-sm">
-              이제 막 걸음마를 떼기 시작한 새싹형이에요 꾸준히 관심을 갖는다면
-              발전의 가능성이 충분한..
-            </p>
           </div>
         </div>
         <div className="flex gap-4 text-white">

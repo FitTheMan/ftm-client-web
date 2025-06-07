@@ -13,8 +13,6 @@ const LandingView = () => {
   const cookieStore = cookies();
   const isLogin = cookieStore.get("SESSION");
 
-  console.log(cookieStore);
-
   return (
     <main className="flex max-xl:justify-center">
       <section className="flex w-1/2 flex-col justify-between py-32 pl-36 font-normal text-blue-500 max-xl:w-[704px] max-xl:pl-0 max-md:px-8 max-sm:items-center max-sm:justify-start max-sm:gap-10">
