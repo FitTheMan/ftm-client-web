@@ -63,8 +63,7 @@ const ResultView = ({
     <main className="flex h-full px-40 py-[74px] max-xl:px-8 max-lg:flex-col max-lg:items-center max-lg:gap-10 max-md:px-10 max-sm:px-4">
       <section className="flex flex-1 flex-col gap-6 *:w-[704px] max-lg:items-center max-md:*:w-full">
         <div className="h-[776px] rounded-[48px] bg-[#374254] max-md:h-auto max-md:pb-10">
-          <div className="relative bottom-[-2px] mr-[17.5px] mt-4 h-11 w-1/2 rounded-tl-[32px] rounded-tr-[25px] bg-white p-4 max-md:h-[280px]"></div>
-          <div className="h-[506px] w-[95%] place-self-center rounded-b-[32px] bg-white p-4 max-md:h-[280px]">
+          <div className="mt-[32px] h-[506px] w-[95%] place-self-center rounded-[32px] bg-white p-4 max-md:h-[280px]">
             mainImg
           </div>
           <div className="flex flex-col items-center gap-6 break-keep px-40 pt-10 text-center max-md:px-20">
