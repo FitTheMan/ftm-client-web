@@ -114,7 +114,7 @@ const GroomingCheck = ({
 
   const onClickResult = () => {
     router.push(
-      `${ROUTES.GROOMING_RESULT}/${encodeURIComponent(
+      `${ROUTES.GROOMING_RESULT}?answers=${encodeURIComponent(
         JSON.stringify(selectedAnswers)
       )}`
     );
