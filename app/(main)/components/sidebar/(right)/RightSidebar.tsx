@@ -4,8 +4,15 @@ import SectionTitle from "../SectionTitle";
 import TrendingItem from "../../trending/TrendingItem";
 import Pagination from "../../../../../components/ui/Pagination";
 import TrendingPostItem from "@/app/(main)/components/trending/TrendingPostItem";
+import { useQuery } from "@tanstack/react-query";
+import { getTrendingPosts } from "@/app/(main)/api/post";
 
 export default function RightSidebar() {
+  const data = useQuery({
+    queryKey: ["trendingPosts"],
+    queryFn: getTrendingPosts,
+  });
+  console.log("trendingPosts", data);
   const [postsPage, setPostsPage] = useState(1);
 
   const trendingItems = Array.from({ length: 5 }).map((_, i) => ({

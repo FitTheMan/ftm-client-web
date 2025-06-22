@@ -2,6 +2,7 @@
 import { FiBookmark, FiThumbsUp } from "react-icons/fi";
 import SectionHeader from "../components/header/SectionHeader";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const userPicks = [
   {
@@ -39,6 +40,7 @@ const userPicks = [
 ];
 
 export default function UserPick() {
+  const router = useRouter();
   return (
     <>
       <div className="mx-auto mt-8 w-full max-w-[808px] px-4">
@@ -56,6 +58,7 @@ export default function UserPick() {
             <div
               key={pick.id}
               className="relative mx-auto flex w-full flex-col overflow-hidden md:w-[392px]"
+              onClick={() => router.push(`/user-pick/${pick.id}`)}
             >
               <div className="relative h-[264px] w-full overflow-hidden rounded-lg">
                 <div className="absolute left-4 right-4 top-4 z-10 flex flex-row items-center justify-between">
