@@ -1,5 +1,5 @@
 "use client";
-import { FiBookmark, FiThumbsUp } from "react-icons/fi";
+import { FiBookmark, FiThumbsUp, FiEdit } from "react-icons/fi";
 import SectionHeader from "../components/header/SectionHeader";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -37,6 +37,22 @@ const userPicks = [
     bookmarks: 0,
     views: 0,
   },
+  {
+    id: 5,
+    category: "디자인",
+    title: "남자 기초 화장품의 모든 것",
+    image: "/user-pick-test/images/user_pick_sample.png",
+    bookmarks: 0,
+    views: 0,
+  },
+  {
+    id: 6,
+    category: "디자인",
+    title: "남자 기초 화장품의 모든 것",
+    image: "/user-pick-test/images/user_pick_sample.png",
+    bookmarks: 0,
+    views: 0,
+  },
 ];
 
 export default function UserPick() {
@@ -47,7 +63,7 @@ export default function UserPick() {
         <SectionHeader title="유저 Pick" />
       </div>
 
-      <div className="mx-auto mt-8 w-full max-w-[808px] px-4">
+      <div className="relative mx-auto mt-8 w-full max-w-[808px] px-4">
         <h3 className="text-lg font-medium">인기있는 글</h3>
         <p className="mt-1 text-sm text-gray-500">
           지금 사람들은 유저들을 위한 바이블
@@ -141,6 +157,22 @@ export default function UserPick() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* 글쓰기 버튼 */}
+        <div className="sticky bottom-10 z-50 ml-auto mr-0 mt-10 w-fit">
+          <button
+            onClick={() => router.push("/write")}
+            className="relative h-[60px] w-[60px] cursor-pointer"
+          >
+            <div
+              className="absolute bottom-0 left-0 h-[60px] w-[60px] rounded-full bg-[#1481fd]"
+              style={{
+                boxShadow: "0px 3px 6px 0px rgba(82, 180, 204, 0.6)",
+              }}
+            />
+            <FiEdit className="absolute bottom-[17px] left-[17px] h-[26px] w-[26px] text-white" />
+          </button>
         </div>
       </div>
     </>
