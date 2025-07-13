@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { ROUTES } from "@/constants/routes";
 
 export async function middleware(request: NextRequest) {
+  const apiUrl = "https://dev-api.fittheman.site";
   const sessionCookie = request.cookies.get("SESSION")?.value;
   const { pathname } = request.nextUrl;
 
@@ -17,15 +18,12 @@ export async function middleware(request: NextRequest) {
   // 2. 세션이 있는 경우 유효성 검사
   if (sessionCookie) {
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/session/validity`,
-        {
-          method: "GET",
-          headers: {
-            cookie: `SESSION=${sessionCookie}`,
-          },
-        }
-      );
+      const res = await fetch(`${apiUrl}/api/auth/session/validity`, {
+        method: "GET",
+        headers: {
+          cookie: `SESSION=${sessionCookie}`,
+        },
+      });
 
       const { data } = await res.json();
       if (!data?.isValid) {
