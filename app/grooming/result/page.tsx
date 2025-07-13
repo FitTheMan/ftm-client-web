@@ -12,16 +12,17 @@ const Page = async ({
   // 결과 조회
   if (date) {
     const result = await userGroomingResultDetail(date);
-    resultDetails = result.data.answers;
 
-    //  결과 생성
-    if (answers) {
-      try {
-        resultDetails = JSON.parse(decodeURIComponent(answers));
-      } catch (e) {
-        console.error(e);
-        resultDetails = [];
-      }
+    resultDetails = result.data.answers;
+  }
+
+  //  결과 생성
+  if (answers) {
+    try {
+      resultDetails = JSON.parse(decodeURIComponent(answers));
+    } catch (e) {
+      console.error(e);
+      resultDetails = [];
     }
   }
 

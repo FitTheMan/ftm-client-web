@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Button from "@/components/ui/Button";
 import SectionHeader from "../components/SectionHeader";
 
@@ -7,32 +10,58 @@ interface EditInfoBarProps {
   value?: string;
 }
 
+interface EditInfoButtonProps {
+  category: string;
+}
+
+//TODO: children 형식으로 바꿔 dropdown 형식으로 바꿔주기
 const EditInfoBar = ({ title, placeholder, value }: EditInfoBarProps) => {
   return (
     <div className="flex min-w-[392px] flex-col gap-2">
       <h3>{title}</h3>
+      <input
+        type="text"
+        className="w-full rounded-md border border-gray-200 bg-gray-100/50 p-2"
+        value={value}
+        placeholder={placeholder}
+      />
+    </div>
+  );
+};
+
+const EditInfoButton = ({ category }: EditInfoButtonProps) => {
+  const [isSelected, setIsSelected] = useState(false);
+
+  return (
+    <div className="flex min-w-[392px] flex-col gap-2">
       <div className="relative flex items-center gap-2">
-        <input
-          type="text"
-          className="w-full rounded-md border border-gray-200 bg-gray-100/50 p-2"
-          value={value}
-          placeholder={placeholder}
+        <Button
+          variant="input"
+          size="md"
+          className="text-left"
+          onClick={() => setIsSelected(!isSelected)}
+        >
+          {category}
+        </Button>
+        <div
+          className={`absolute right-3 size-4 rounded-full ${
+            isSelected ? "bg-blue-500" : "bg-gray-200"
+          }`}
         />
-        <div className="absolute right-3 size-4 rounded-full bg-gray-200" />
       </div>
     </div>
   );
 };
 
 const groomingInterestList = [
+  "스킨케어",
+  "향수",
+  "건강",
+  "메이크업",
   "패션",
-  "패션",
-  "운동",
-  "운동",
-  "향수",
-  "향수",
-  "향수",
-  "향수",
+  "면도",
+  "헤어 스타일링",
+  "바디케어",
 ];
 
 const Page = () => {
@@ -65,9 +94,9 @@ const Page = () => {
         {/* sub section */}
         <div className="mt-6">
           <h3>나의 구르밍 관심</h3>
-          <div className="grid grid-cols-2 gap-x-12 gap-y-1">
+          <div className="grid grid-cols-2 gap-x-12 gap-y-2">
             {groomingInterestList.map((interest) => (
-              <EditInfoBar key={interest} value={interest} />
+              <EditInfoButton key={interest} category={interest} />
             ))}
           </div>
         </div>
