@@ -13,13 +13,13 @@ const ActionButtons = ({
 }: ActionButtonsProps) => {
   return (
     <div className="flex justify-center gap-3 px-6 pb-6 pt-6">
-      <button
+      {/* <button
         onClick={onCancel}
         className="rounded-lg border border-gray-300 px-6 py-2.5 font-medium text-gray-700 transition-colors hover:bg-gray-50"
         disabled={isSubmitting}
       >
         임시 저장
-      </button>
+      </button> */}
       <button
         onClick={onSave}
         className="rounded-lg bg-blue-600 px-6 py-2.5 font-medium text-white transition-colors hover:bg-blue-700"
