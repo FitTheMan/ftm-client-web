@@ -8,4 +8,5 @@ export const ROUTES = {
   GROOMING_RESULT: "/grooming/result",
   SIGNIN: "/signin",
   SIGNUP: "/signup",
+  MY_PAGE: "/mypage",
 } as const;
