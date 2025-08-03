@@ -93,11 +93,23 @@ const ResultView = ({ saveData, answers }: Props) => {
 
   return (
     <main className="flex h-full px-40 py-[74px] max-xl:px-8 max-lg:flex-col max-lg:items-center max-lg:gap-10 max-md:px-10 max-sm:px-4">
-      <section className="flex flex-1 flex-col gap-6 *:w-[704px] max-lg:items-center max-md:*:w-full">
+      <section className="flex flex-1 flex-col gap-6 *:w-[704px] max-lg:items-center max-md:w-full max-md:*:w-full">
         <div className="h-[776px] rounded-[48px] bg-[#374254] max-md:h-auto max-md:pb-10">
-          <div className="mt-[32px] h-[506px] w-[95%] place-self-center rounded-[32px] bg-white p-4 max-md:h-[280px]">
+          <div className="mt-3 h-20 w-[95%] place-self-center rounded-[40px] bg-[#485B78] p-5"></div>
+          <div className="mt-3 h-[440px] w-[95%] place-self-center rounded-[32px] bg-white p-4 max-md:h-[280px]">
             mainImg
           </div>
+
+          <section className="my-8 flex flex-col items-center gap-6">
+            <h1 className="text-[32px] font-bold text-white">그루밍 백지</h1>
+            <p className="text-xl text-[#AEC0DE]">
+              아직은 그루밍이 낯설고 어렵기만한 상태
+            </p>
+            <div className="rounded-lg bg-[#71819A] p-[8px_16px] text-white">
+              그루밍 지수 재검사
+            </div>
+          </section>
+
           <div className="flex flex-col items-center gap-6 break-keep px-40 pt-10 text-center max-md:px-20">
             <h3 className="text-4xl text-white max-sm:text-[28px]">
               {detailData.level?.spicyLevelName}
