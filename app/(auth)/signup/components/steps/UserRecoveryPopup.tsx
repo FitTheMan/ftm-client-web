@@ -2,7 +2,6 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { hideModal } from "@/stores/ModalStore";
-import { initiateKakaoLogin } from "@/utils/auth/kakaoAuth";
 import { useMutation } from "@tanstack/react-query";
 import { recoverUser } from "../../api";
 
@@ -21,6 +20,7 @@ const UserRecoveryPopup = ({ email, nextStep }: UserRecoveryPopupProps) => {
   const mutation = useMutation({
     mutationFn: recoverUser,
     onSuccess: (response) => {
+      console.log("recoverUser response", response);
       hideModal();
       router.push(ROUTES.SIGNIN);
     },
