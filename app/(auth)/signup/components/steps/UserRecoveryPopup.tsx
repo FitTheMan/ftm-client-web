@@ -20,7 +20,7 @@ const UserRecoveryPopup = ({ email, nextStep }: UserRecoveryPopupProps) => {
   const mutation = useMutation({
     mutationFn: recoverUser,
     onSuccess: (response) => {
-      console.log("recoverUser response", response);
+      console.log("recoverUser response!", response);
       hideModal();
       router.push(ROUTES.SIGNIN);
     },
