@@ -2,15 +2,10 @@ import React from "react";
 
 interface ActionButtonsProps {
   isSubmitting: boolean;
-  onCancel: () => void;
   onSave: () => void;
 }
 
-const ActionButtons = ({
-  isSubmitting,
-  onCancel,
-  onSave,
-}: ActionButtonsProps) => {
+const ActionButtons = ({ isSubmitting, onSave }: ActionButtonsProps) => {
   return (
     <div className="flex justify-center gap-3 px-6 pb-6 pt-6">
       {/* <button
