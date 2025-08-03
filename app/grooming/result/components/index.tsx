@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   createGroomingCheckResult,
@@ -15,49 +15,81 @@ import {
 import GradeCard from "./GradeCard";
 import SignInRouteCard from "./SignInRouteCard";
 import { UserInfo } from "@/types/user";
-const ResultView = ({
-  answers,
-}: {
-  answers: GroomingCheckSelectedAnswerType[];
-}) => {
-  const { data, isLoading } = useQuery<GroomingCheckResultResponse>({
-    queryKey: ["groomingResult"],
-    queryFn: () => createGroomingCheckResult({ answers }),
+
+interface Props {
+  saveData?: {
+    grades: GroomingCheckResultGradesType;
+    level: LevelType;
+    scores: Record<string, number>;
+  };
+  answers?: GroomingCheckSelectedAnswerType[];
+}
+
+const ResultView = ({ saveData, answers }: Props) => {
+  // 결과 조회
+  const [detailData, setDetailData] = useState({
+    grades: {} as GroomingCheckResultGradesType,
+    level: {} as LevelType,
+    scores: {} as Record<string, number>,
   });
 
-  const {
-    grades = {} as GroomingCheckResultGradesType,
-    level = {} as LevelType,
-    scores = {} as Record<string, number>,
-  } = data?.data || {};
+  useEffect(() => {
+    if (saveData) {
+      setDetailData({
+        grades: saveData.grades,
+        level: saveData.level,
+        scores: saveData.scores,
+      });
+    }
+  }, [saveData]);
 
-  // 사이드 이펙트 제거 예정
+  // 결과 생성
+  const { data, isLoading } = useQuery<GroomingCheckResultResponse>({
+    queryKey: ["groomingResult"],
+    queryFn: () => createGroomingCheckResult({ answers: answers || [] }),
+    enabled: !!answers && answers.length > 0,
+  });
+
   useEffect(() => {
     const isUser = localStorage.getItem("userInfo");
 
-    if (isUser) {
+    if (isUser && data) {
+      setDetailData(
+        data.data || {
+          grades: {} as GroomingCheckResultGradesType,
+          level: {} as LevelType,
+          scores: {} as Record<string, number>,
+        }
+      );
+
       const { state } = JSON.parse(isUser);
       const { user: userInfo } = state as { user: UserInfo };
 
       const saveRequestData = {
         userId: userInfo.id,
-        groomingLevelId: level.groomingLevelId,
-        totalScore: Object.values(scores).reduce((acc, curr) => acc + curr, 0),
-        results: answers.map(({ questionId, answerIds }) => ({
-          questionId,
-          answerIds,
-        })),
+        groomingLevelId: data.data.level.groomingLevelId,
+        totalScore: Object.values(data.data.scores).reduce(
+          (acc, curr) => acc + curr,
+          0
+        ),
+        results:
+          answers?.map(({ questionId, answerIds }) => ({
+            questionId,
+            answerIds,
+          })) || [],
       };
 
-      try {
-        saveGroomingCheckResult(saveRequestData);
-      } catch (error) {
-        console.error(error);
-      }
+      saveGroomingCheckResult(saveRequestData).catch(console.error);
     }
-  }, [data]);
+  }, [data, answers]);
 
-  if (isLoading) return <div>Loading...</div>;
+  // 추후 로딩 스피너 공통 컴포넌트 필요
+  if (isLoading)
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#1481FD] border-t-transparent" />
+      </div>
+    );
 
   return (
     <main className="flex h-full px-40 py-[74px] max-xl:px-8 max-lg:flex-col max-lg:items-center max-lg:gap-10 max-md:px-10 max-sm:px-4">
@@ -68,7 +100,7 @@ const ResultView = ({
           </div>
           <div className="flex flex-col items-center gap-6 break-keep px-40 pt-10 text-center max-md:px-20">
             <h3 className="text-4xl text-white max-sm:text-[28px]">
-              {level.spicyLevelName}
+              {detailData.level?.spicyLevelName}
             </h3>
           </div>
         </div>
@@ -84,7 +116,7 @@ const ResultView = ({
 
       <section className="flex-1 max-md:w-full">
         <div className="grid size-full grid-cols-2 gap-4">
-          {Object.entries(grades).map(([key, grade]) => (
+          {Object.entries(detailData.grades || {}).map(([key, grade]) => (
             <GradeCard
               key={key}
               category={key}
