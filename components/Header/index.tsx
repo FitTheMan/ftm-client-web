@@ -6,7 +6,6 @@ const Header = () => {
   return (
     <header className="flex h-[64px] w-full items-center justify-between border-b-[1px] text-base">
       <section className="flex gap-2">
-        <div>이미지</div>
         <Link href={ROUTES.ROOT} className="font-medium">
           FIT THE MAN
         </Link>
