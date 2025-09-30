@@ -18,7 +18,7 @@ interface PostCardProps {
   size?: "small" | "large";
   showRanking?: boolean;
   isBookmarked?: boolean;
-  sectionType?: "popular" | "bible" | "topBookmarks";
+  sectionType?: "popular" | "bible" | "topBookmarks" | "groomingStory";
 }
 
 export default function PostCard({
@@ -57,12 +57,18 @@ export default function PostCard({
               queryKey: ["userPickTopBookmarks"],
             });
             break;
+          case "groomingStory":
+            queryClient.invalidateQueries({
+              queryKey: ["groomingStoryPosts"],
+            });
+            break;
         }
       } else {
         // sectionType이 없으면 모든 쿼리 무효화 (기본값)
         queryClient.invalidateQueries({ queryKey: ["userPickPopularPosts"] });
         queryClient.invalidateQueries({ queryKey: ["userPickBiblePosts"] });
         queryClient.invalidateQueries({ queryKey: ["userPickTopBookmarks"] });
+        queryClient.invalidateQueries({ queryKey: ["groomingStoryPosts"] });
       }
     },
   });

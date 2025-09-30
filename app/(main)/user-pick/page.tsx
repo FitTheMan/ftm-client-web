@@ -31,7 +31,7 @@ const transformApiDataToPostData = (apiData: UserPickPost[]): PostData[] => {
     bookmarks: post.scrapCount,
     tags: post.hashtags,
     ranking: post.ranking,
-    isBookmarked: post.isBookmarked || post.userBookmarkYn || false,
+    userBookmarkYn: post.userBookmarkYn || false,
   }));
 };
 
@@ -189,6 +189,7 @@ export default function UserPick() {
           posts={groomingStoryPosts}
           layout="3-column"
           showRanking={false}
+          sectionType="groomingStory"
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
           onLoadMore={() => fetchNextPage()}
