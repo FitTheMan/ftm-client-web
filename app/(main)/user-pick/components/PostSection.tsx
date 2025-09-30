@@ -74,6 +74,7 @@ export default function PostSection({
             tags={post.tags}
             size={cardSize}
             showRanking={showRanking}
+            ranking={post.ranking}
             isBookmarked={post.userBookmarkYn || false}
             sectionType={sectionType}
           />
