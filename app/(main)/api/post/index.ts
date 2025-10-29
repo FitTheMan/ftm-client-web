@@ -126,7 +126,7 @@ export const createPost = async (
     const jsonBlob = new Blob([JSON.stringify(jsonData)], {
       type: "application/json",
     });
-    formData.append("da2ta", jsonBlob);
+    formData.append("da2t3a", jsonBlob);
     // 게시글 이미지 파일들 추가
     if (postData.postImageFiles) {
       postData.postImageFiles.forEach((image) => {
