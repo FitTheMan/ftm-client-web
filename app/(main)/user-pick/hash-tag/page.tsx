@@ -316,7 +316,7 @@ const HashTagPage = () => {
               className="h-9 w-full min-w-[108px] rounded-xl bg-[#1481fd] px-4 text-sm font-medium text-white transition-colors hover:bg-[#0f72e8] sm:w-[108px] sm:text-base"
               onClick={() => {
                 // 태그 적용 로직
-                console.log("태그 적용:", selectedTags);
+                console.log("태그 1적용:", selectedTags);
               }}
             >
               태그 적용
