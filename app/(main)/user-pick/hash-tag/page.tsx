@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -14,6 +13,7 @@ import {
 import { HashtagsResponse, CategoryData } from "@/app/(main)/types/PostType";
 import { ApiResponse } from "@/types/api";
 import { openToast } from "@/utils/modal/OpenToast";
+import OptimizedImage from "../components/OptimizedImage";
 
 const HashTagPage = () => {
   const router = useRouter();
@@ -362,12 +362,11 @@ const HashTagPage = () => {
               >
                 {/* 상품 이미지 영역 */}
                 <div className="relative mx-auto mb-3 h-[170px] w-[170px] overflow-hidden rounded-lg bg-white transition-all duration-300">
-                  <Image
+                  <OptimizedImage
                     src={product.image}
                     alt={product.name}
                     fill
-                    className="object-cover"
-                    unoptimized={product.image.startsWith("http")}
+                    objectFit="cover"
                   />
                 </div>
 
