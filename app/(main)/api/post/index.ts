@@ -289,7 +289,7 @@ export const getProductsByHashtags = async (
 ): Promise<ApiResponse<ProductsByHashtagResponse>> => {
   try {
     const response = await api.post<ApiResponse<ProductsByHashtagResponse>>(
-      `${BASE_PATH}/products?size=10`,
+      `${BASE_PATH}/products?size=20`,
       request
     );
     return response.data;
