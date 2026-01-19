@@ -1,16 +1,19 @@
 import Button from "@/components/ui/Button";
+import { HashTagInfo } from "../types";
 
 interface Props {
-  category: string;
-  isSelected: Record<string, boolean>;
-  onSelect: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  hashTagInfo: HashTagInfo;
+  onSelect: React.Dispatch<React.SetStateAction<HashTagInfo[]>>;
 }
 
-export const EditInfoButton = ({ category, isSelected, onSelect }: Props) => {
+export const EditInfoButton = ({ hashTagInfo, onSelect }: Props) => {
   const handleSelect = () => {
     onSelect((prev) => {
-      const newSelected = { ...prev, [category]: !prev[category] };
-      return newSelected;
+      return prev.map((tag) =>
+        tag.value === hashTagInfo.value
+          ? { ...tag, isSelected: !tag.isSelected }
+          : tag
+      );
     });
   };
 
@@ -19,15 +22,16 @@ export const EditInfoButton = ({ category, isSelected, onSelect }: Props) => {
       <div className="relative flex items-center gap-2">
         <Button
           variant="input"
+          type="button"
           size="md"
           className="text-left"
           onClick={handleSelect}
         >
-          {category}
+          {hashTagInfo.description}
         </Button>
         <div
           className={`absolute right-3 size-4 rounded-full ${
-            isSelected[category] ? "bg-blue-500" : "bg-gray-200"
+            hashTagInfo.isSelected ? "bg-blue-500" : "bg-gray-200"
           }`}
         />
       </div>

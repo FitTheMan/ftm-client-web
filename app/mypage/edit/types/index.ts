@@ -1,13 +1,15 @@
+export type HashTagInfo = {
+  value: string;
+  description: string;
+  isSelected: boolean;
+};
+
 export type UserInfo = {
   ageInfo: {
     value: string;
     description: string;
   };
-  hashTagInfo: {
-    value: string;
-    description: string;
-    isSelected: boolean;
-  }[];
+  hashTagInfo: HashTagInfo[];
   imageUrl: string;
   userId: number;
   userNickname: string;
@@ -20,8 +22,8 @@ export type UserInfoResponse = {
 export type UserInfoUpdateData = {
   nickname: string;
   age: string;
-  imageAction: string;
-  hashtags: string[];
+  imageAction?: string;
+  hashtags: HashTagInfo[];
 };
 
 export type UserInfoUpdateRequest = {

@@ -5,38 +5,44 @@ import SectionHeader from "@/app/(main)/components/header/SectionHeader";
 import Button from "@/components/ui/Button";
 import { EditInfoBar, EditInfoButton } from "../";
 import { useQuery } from "@tanstack/react-query";
-import { getUserInfo } from "../../api";
+import { getUserInfo, useUpdateUserInfo } from "../../api";
+import { UserInfoUpdateData, HashTagInfo } from "../../types";
 
 export default function MyPageEditPage() {
   const { data: userInfoData } = useQuery({
     queryKey: ["userInfo"],
     queryFn: getUserInfo,
   });
-  const [selectedInterests, setSelectedInterests] = useState<
-    Record<string, boolean>
-  >({});
+
+  const [selectedInterests, setSelectedInterests] = useState<HashTagInfo[]>([]);
+  const { mutate: updateUserInfo } = useUpdateUserInfo();
 
   useEffect(() => {
     if (!userInfoData) return;
 
-    setSelectedInterests(
-      userInfoData.hashTagInfo.reduce(
-        (acc, tag) => {
-          acc[tag.description] = tag.isSelected;
-          return acc;
-        },
-        {} as Record<string, boolean>
-      )
-    );
+    setSelectedInterests(userInfoData.hashTagInfo);
   }, [userInfoData]);
 
   if (!userInfoData) return null;
 
-  const { userNickname, ageInfo, hashTagInfo } = userInfoData;
-  const groomingInterestList = hashTagInfo.map((tag) => tag.description);
+  const { userNickname, ageInfo } = userInfoData;
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const data = Object.fromEntries(formData.entries());
+
+    const payload: UserInfoUpdateData = {
+      nickname: data.nickname as string,
+      age: data.age as string,
+      hashtags: selectedInterests,
+    };
+
+    updateUserInfo({ data: payload });
+  };
 
   return (
-    <div className="flex flex-col gap-12">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-12">
       <SectionHeader title="회원정보 수정" />
       <section>
         <div className="flex gap-5">
@@ -61,19 +67,26 @@ export default function MyPageEditPage() {
       <section className="text-sm">
         {/* main section */}
         <div className="grid grid-cols-2 gap-x-12">
-          <EditInfoBar title="유저네임*" placeholder={userNickname} />
-          <EditInfoBar title="연령대" placeholder={ageInfo.description} />
+          <EditInfoBar
+            title="유저네임*"
+            placeholder={userNickname}
+            name="nickname"
+          />
+          <EditInfoBar
+            title="연령대"
+            placeholder={ageInfo.description}
+            name="age"
+          />
         </div>
 
         {/* sub section */}
         <div className="mt-6">
           <h3>나의 구르밍 관심</h3>
           <div className="grid grid-cols-2 gap-x-12 gap-y-2">
-            {groomingInterestList.map((interest) => (
+            {selectedInterests?.map((tag) => (
               <EditInfoButton
-                key={interest}
-                category={interest}
-                isSelected={selectedInterests}
+                key={tag.value}
+                hashTagInfo={tag}
                 onSelect={setSelectedInterests}
               />
             ))}
@@ -82,8 +95,10 @@ export default function MyPageEditPage() {
       </section>
 
       <section className="flex justify-center text-sm">
-        <Button className="w-44 rounded-[10px]">저장하기</Button>
+        <Button type="submit" className="w-44 rounded-[10px]">
+          저장하기
+        </Button>
       </section>
-    </div>
+    </form>
   );
 }
