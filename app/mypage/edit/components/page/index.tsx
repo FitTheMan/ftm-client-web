@@ -1,44 +1,42 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import SectionHeader from "@/app/(main)/components/header/SectionHeader";
 import Button from "@/components/ui/Button";
 import { EditInfoBar, EditInfoButton } from "../";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { getUserInfo, useUpdateUserInfo } from "../../api";
-import { UserInfoUpdateData, HashTagInfo } from "../../types";
+import { HashTagInfo } from "../../types";
 
 export default function MyPageEditPage() {
-  const { data: userInfoData } = useQuery({
+  const { data: userInfoData } = useSuspenseQuery({
     queryKey: ["userInfo"],
     queryFn: getUserInfo,
   });
-
-  const [selectedInterests, setSelectedInterests] = useState<HashTagInfo[]>([]);
+  const [selectedInterests, setSelectedInterests] = useState<HashTagInfo[]>(
+    userInfoData.hashTagInfo
+  );
   const { mutate: updateUserInfo } = useUpdateUserInfo();
-
-  useEffect(() => {
-    if (!userInfoData) return;
-
-    setSelectedInterests(userInfoData.hashTagInfo);
-  }, [userInfoData]);
-
-  if (!userInfoData) return null;
-
   const { userNickname, ageInfo } = userInfoData;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    const data = Object.fromEntries(formData.entries());
-
-    const payload: UserInfoUpdateData = {
-      nickname: data.nickname as string,
-      age: data.age as string,
-      hashtags: selectedInterests,
+    const payload = {
+      nickname: formData.get("nickname") as string,
+      ageInfo: { value: "FIFIES", description: formData.get("age") as string },
+      hashTagInfo: selectedInterests,
     };
 
-    updateUserInfo({ data: payload });
+    console.log(payload);
+    const requestData = new FormData();
+
+    requestData.append(
+      "data",
+      new Blob([JSON.stringify(payload)], { type: "application/json" })
+    );
+
+    updateUserInfo(requestData);
   };
 
   return (

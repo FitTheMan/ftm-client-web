@@ -25,8 +25,3 @@ export type UserInfoUpdateData = {
   imageAction?: string;
   hashtags: HashTagInfo[];
 };
-
-export type UserInfoUpdateRequest = {
-  data: UserInfoUpdateData;
-  imageFile?: File;
-};
