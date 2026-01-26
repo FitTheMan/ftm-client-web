@@ -80,6 +80,7 @@ export interface PostProduct {
   brand: string;
   hashtags: string[];
   postProductImage: PostProductImage;
+  recommendedCount: number;
 }
 
 /**
@@ -93,9 +94,11 @@ export interface PostDetail {
   hashtags: string[];
   viewCount: number;
   likeCount: number;
+  userLikeYn?: boolean; // 현재 사용자의 좋아요 여부
   createdAt: string;
   updatedAt: string;
   postImages: PostImage[];
   writer: Writer;
   postProducts: PostProduct[];
+  userBookmarkYn?: boolean;
 }
