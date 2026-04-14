@@ -13,7 +13,7 @@ export default function ContentSectionA({
   const [text01, text02, text03, text04, text05, text06] = texts;
 
   return (
-    <section className="mt-[120px] flex flex-col">
+    <section className="mt-[120px] flex flex-col whitespace-pre-line">
       <section className="flex h-[800px] gap-12 *:w-1/2">
         <ImageWrapper src={img01} />
         <div className="flex flex-col gap-12">

@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function ContentSection({ data }: Props) {
-  const { type } = data;
+  const type = data.type;
 
   switch (type) {
     case "A":
