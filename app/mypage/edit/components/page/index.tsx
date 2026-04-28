@@ -1,16 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import SectionHeader from "@/app/(main)/components/header/SectionHeader";
 import Button from "@/components/ui/Button";
 import { EditInfoButton } from "../";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getUserInfo, useUpdateUserInfo } from "../../api";
-import { HashTagInfo } from "../../types";
+import { HashTagInfo, UserInfoUpdateData } from "../../types";
 import { AGE_OPTIONS } from "../../constants";
 import SelectBox from "@/components/ui/SeletBox";
 import { openToast } from "@/utils/modal/OpenToast";
+import { formatImageUrl } from "@/app/(main)/user-pick/[postId]/utils";
+
+const MAX_PROFILE_IMAGE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_PROFILE_IMAGE_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/svg+xml",
+];
 
 export default function MyPageEditPage() {
   const { data: userInfoData } = useSuspenseQuery({
@@ -22,19 +32,64 @@ export default function MyPageEditPage() {
   );
   const router = useRouter();
   const { mutate: updateUserInfo } = useUpdateUserInfo();
-  const { userNickname, ageInfo } = userInfoData;
-  const [selectedAge, setSelectedAge] = useState<string>(ageInfo.description);
+  const { userNickname, ageInfo, imageUrl } = userInfoData;
+  const [selectedAge, setSelectedAge] = useState<string>(ageInfo?.description);
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string>(
+    formatImageUrl(imageUrl)
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!profileImagePreview.startsWith("blob:")) return;
+
+    return () => {
+      URL.revokeObjectURL(profileImagePreview);
+    };
+  }, [profileImagePreview]);
+
+  const handleProfileImageUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    if (!ALLOWED_PROFILE_IMAGE_TYPES.includes(file.type)) {
+      openToast(
+        "업로드 실패",
+        "10MB 이하 PNG, JPG, SVG 파일만 업로드할 수 있습니다.",
+        3000
+      );
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_PROFILE_IMAGE_SIZE) {
+      openToast("업로드 실패", "10MB 이하 파일만 업로드할 수 있습니다.", 3000);
+      e.target.value = "";
+      return;
+    }
+
+    setProfileImageFile(file);
+    setProfileImagePreview(URL.createObjectURL(file));
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const payload = {
-      nickname: formData.get("nickname") as string,
-      ageInfo: {
-        value: AGE_OPTIONS.find((option) => option.description === selectedAge)
-          ?.value,
-        description: selectedAge,
-      },
-      hashTagInfo: selectedInterests,
+    const formData = new FormData(e.currentTarget);
+    const nickname = ((formData.get("nickname") as string) || "").trim();
+    const payload: UserInfoUpdateData = {
+      nickname: nickname || userNickname,
+      age:
+        AGE_OPTIONS.find((option) => option.description === selectedAge)
+          ?.value || null,
+      hashtags: selectedInterests
+        .filter((tag) => tag.isSelected)
+        .map((tag) => tag.value),
+      imageAction: profileImageFile ? "UPLOAD" : undefined,
     };
 
     const requestData = new FormData();
@@ -43,6 +98,10 @@ export default function MyPageEditPage() {
       "data",
       new Blob([JSON.stringify(payload)], { type: "application/json" })
     );
+
+    if (profileImageFile) {
+      requestData.append("imageFile", profileImageFile);
+    }
 
     updateUserInfo(requestData, {
       onSuccess: () => {
@@ -64,20 +123,35 @@ export default function MyPageEditPage() {
       <SectionHeader title="회원정보 수정" />
       <section>
         <div className="flex gap-5">
-          <div className="size-20 rounded-full bg-gray-200">
-            {/* <Image
-                  src={imageUrl ?? ""}
-                  alt="profile"
-                  width={80}
-                  height={80}
-                /> */}
+          <div className="relative size-20 overflow-hidden rounded-full bg-gray-200">
+            {profileImagePreview ? (
+              <Image
+                src={profileImagePreview}
+                alt="profile"
+                fill
+                className="object-cover"
+              />
+            ) : null}
           </div>
           <h3 className="text-sm leading-6">
             프로필 사진 변경
             <p className="text-gray-500">
               10MB 이하 PNG, JPG, SVG를 올려주세요.
             </p>
-            <Button className="mt-1 w-44 rounded-[10px]">사진 업로드</Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml"
+              className="hidden"
+              onChange={handleProfileImageChange}
+            />
+            <Button
+              type="button"
+              onClick={handleProfileImageUpload}
+              className="mt-1 w-44 rounded-[10px] font-bold"
+            >
+              사진 업로드
+            </Button>
           </h3>
         </div>
       </section>

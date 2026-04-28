@@ -26,8 +26,8 @@ export const useUpdateUserInfo = () => {
   return useMutation({
     mutationFn: userInfoUpdate,
 
-    onSuccess: (updatedData) => {
-      queryClient.setQueryData(["userInfo"], updatedData);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["userInfo"] });
     },
   });
 };

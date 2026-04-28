@@ -21,7 +21,7 @@ export type UserInfoResponse = {
 
 export type UserInfoUpdateData = {
   nickname: string;
-  age: string;
+  age: string | null;
   imageAction?: string;
-  hashtags: HashTagInfo[];
+  hashtags: string[] | null;
 };
