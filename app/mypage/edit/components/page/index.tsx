@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import SectionHeader from "@/app/(main)/components/header/SectionHeader";
@@ -14,6 +15,7 @@ import SelectBox from "@/components/ui/SeletBox";
 import { openToast } from "@/utils/modal/OpenToast";
 import { formatImageUrl } from "@/app/(main)/user-pick/[postId]/utils";
 import { useAuthStore } from "@/stores/AuthStore";
+import { ROUTES } from "@/constants/routes";
 
 const MAX_PROFILE_IMAGE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_PROFILE_IMAGE_TYPES = [
@@ -171,6 +173,14 @@ export default function MyPageEditPage() {
               사진 업로드
             </Button>
           </h3>
+        </div>
+        <div className="flex w-full justify-end">
+          <Link
+            href={ROUTES.ACCOUNT_DELETE}
+            className="w-fit text-end text-sm text-[#6f7c90] underline"
+          >
+            계정 삭제하기
+          </Link>
         </div>
       </section>
 
