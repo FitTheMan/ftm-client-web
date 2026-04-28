@@ -45,39 +45,21 @@ const ToolbarButton = ({
     onClick={onClick}
     disabled={disabled}
     title={title}
-    className={`rounded p-2 transition-colors ${
+    className={`rounded-md p-1.5 transition-colors ${
       isActive
-        ? "bg-blue-500 text-white"
-        : "text-gray-700 hover:bg-gray-200"
-    } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
+        ? "bg-[#1481fd] text-white"
+        : "text-[#374254] hover:bg-[#f5f5f7]"
+    } ${disabled ? "cursor-not-allowed opacity-30" : ""}`}
   >
     {children}
   </button>
 );
 
-const Divider = () => <div className="mx-1 h-6 w-px bg-gray-300" />;
+const Divider = () => <div className="mx-0.5 h-5 w-px bg-[#e1e1e7]" />;
 
 export const TiptapToolbar = ({ editor, onImageUpload }: TiptapToolbarProps) => {
   return (
-    <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1 border-b border-gray-200 bg-white p-2">
-      {/* Undo/Redo */}
-      <ToolbarButton
-        onClick={() => editor.chain().focus().undo().run()}
-        disabled={!editor.can().undo()}
-        title="실행 취소"
-      >
-        <RiArrowGoBackLine className="h-5 w-5" />
-      </ToolbarButton>
-      <ToolbarButton
-        onClick={() => editor.chain().focus().redo().run()}
-        disabled={!editor.can().redo()}
-        title="다시 실행"
-      >
-        <RiArrowGoForwardLine className="h-5 w-5" />
-      </ToolbarButton>
-
-      <Divider />
-
+    <div className="sticky top-0 z-10 flex items-center gap-0.5 bg-white px-3 py-2">
       {/* Text Formatting */}
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleBold().run()}
@@ -206,6 +188,24 @@ export const TiptapToolbar = ({ editor, onImageUpload }: TiptapToolbarProps) => 
       <ToolbarButton onClick={onImageUpload} title="이미지 추가">
         <RiImageAddLine className="h-5 w-5" />
       </ToolbarButton>
+
+      {/* Undo/Redo - 오른쪽 끝 */}
+      <div className="ml-auto flex items-center gap-0.5">
+        <ToolbarButton
+          onClick={() => editor.chain().focus().undo().run()}
+          disabled={!editor.can().undo()}
+          title="실행 취소"
+        >
+          <RiArrowGoBackLine className="h-5 w-5" />
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={() => editor.chain().focus().redo().run()}
+          disabled={!editor.can().redo()}
+          title="다시 실행"
+        >
+          <RiArrowGoForwardLine className="h-5 w-5" />
+        </ToolbarButton>
+      </div>
     </div>
   );
 };

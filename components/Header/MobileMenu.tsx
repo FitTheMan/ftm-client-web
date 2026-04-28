@@ -55,10 +55,12 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
         aria-hidden={!isOpen}
       />
 
-      {/* 메뉴 드로어 */}
+      {/* 메뉴 드로어 — 닫힐 때 opacity까지 꺼서 iOS 오버스크롤 시 문구가 비치지 않게 함 */}
       <div
-        className={`fixed left-0 top-[64px] z-[45] h-auto w-full bg-white shadow-lg transition-transform duration-300 ease-out lg:hidden ${
-          isOpen ? "translate-y-0" : "-translate-y-full"
+        className={`fixed left-0 top-[64px] z-[45] h-auto w-full bg-white transition-[transform,opacity,box-shadow] duration-300 ease-out lg:hidden ${
+          isOpen
+            ? "translate-y-0 opacity-100 shadow-lg"
+            : "pointer-events-none -translate-y-full opacity-0 shadow-none"
         }`}
         aria-hidden={!isOpen}
       >
@@ -147,9 +149,11 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
                   핏더맨 큐레이션
                 </button>
                 <button
-                  onClick={() => handleNavigation(ROUTES.EDITOR_PICK)}
+                  onClick={() =>
+                    handleNavigation(ROUTES.EDITOR_PICK_STEP_BY_STEP)
+                  }
                   className={`text-left text-base font-medium leading-4 ${
-                    pathname === ROUTES.EDITOR_PICK
+                    pathname.includes(ROUTES.EDITOR_PICK_STEP_BY_STEP)
                       ? "text-[#1481fd]"
                       : "text-[#374254]"
                   }`}

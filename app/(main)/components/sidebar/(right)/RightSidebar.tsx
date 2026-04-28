@@ -1,13 +1,25 @@
 "use client";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import SectionTitle from "../SectionTitle";
 import TrendingItem from "../../trending/TrendingItem";
 import Pagination from "../../../../../components/ui/Pagination";
 import TrendingPostItem from "@/app/(main)/components/trending/TrendingPostItem";
 import { useQuery } from "@tanstack/react-query";
 import { getTrendingPosts, getTrendingUsers } from "@/app/(main)/api/post";
+import CurationCategorySidebar from "./CurationCategorySidebar";
 
 export default function RightSidebar() {
+  const pathname = usePathname();
+
+  if (pathname.includes("/editor-pick/curation")) {
+    return null;
+  }
+
+  if (pathname.includes("/editor-pick")) {
+    return <CurationCategorySidebar />;
+  }
+
   const {
     data: trendingPostsData,
     isLoading,
@@ -36,7 +48,7 @@ export default function RightSidebar() {
   const totalPages = Math.ceil((trendingPostsData?.length || 0) / itemsPerPage);
 
   return (
-    <div className="mr-[18px] flex h-auto min-h-[558px] w-[324px] flex-col gap-8 p-4">
+    <div className="sticky top-4 mr-[18px] hidden h-auto min-h-[558px] w-[324px] flex-col gap-8 p-4 lg:flex">
       {/* 트렌딩 픽더맨 섹션 */}
       <div className="w-[288px]">
         <SectionTitle title="트렌딩 핏더맨" />
