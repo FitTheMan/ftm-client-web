@@ -6,13 +6,14 @@ import { useRouter } from "next/navigation";
 import SectionHeader from "@/app/(main)/components/header/SectionHeader";
 import Button from "@/components/ui/Button";
 import { EditInfoButton } from "../";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { getUserInfo, useUpdateUserInfo } from "../../api";
 import { HashTagInfo, UserInfoUpdateData } from "../../types";
 import { AGE_OPTIONS } from "../../constants";
 import SelectBox from "@/components/ui/SeletBox";
 import { openToast } from "@/utils/modal/OpenToast";
 import { formatImageUrl } from "@/app/(main)/user-pick/[postId]/utils";
+import { useAuthStore } from "@/stores/AuthStore";
 
 const MAX_PROFILE_IMAGE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_PROFILE_IMAGE_TYPES = [
@@ -23,6 +24,8 @@ const ALLOWED_PROFILE_IMAGE_TYPES = [
 ];
 
 export default function MyPageEditPage() {
+  const { setUser, getUser } = useAuthStore();
+  const queryClient = useQueryClient();
   const { data: userInfoData } = useSuspenseQuery({
     queryKey: ["userInfo"],
     queryFn: getUserInfo,
@@ -104,7 +107,22 @@ export default function MyPageEditPage() {
     }
 
     updateUserInfo(requestData, {
-      onSuccess: () => {
+      onSuccess: async () => {
+        const freshUserInfo = await queryClient.fetchQuery({
+          queryKey: ["userInfo"],
+          queryFn: getUserInfo,
+        });
+        const currentUser = getUser();
+
+        if (currentUser) {
+          setUser({
+            ...currentUser,
+            id: freshUserInfo.userId,
+            nickname: freshUserInfo.userNickname,
+            profileImageUrl: formatImageUrl(freshUserInfo.imageUrl),
+          });
+        }
+
         openToast("회원정보 수정 성공", "정상적으로 수정되었습니다.", 3000);
         router.back();
       },
