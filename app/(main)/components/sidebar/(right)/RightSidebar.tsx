@@ -1,13 +1,22 @@
 "use client";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import SectionTitle from "../SectionTitle";
 import TrendingItem from "../../trending/TrendingItem";
 import Pagination from "../../../../../components/ui/Pagination";
 import TrendingPostItem from "@/app/(main)/components/trending/TrendingPostItem";
 import { useQuery } from "@tanstack/react-query";
 import { getTrendingPosts, getTrendingUsers } from "@/app/(main)/api/post";
+import CurationCategorySidebar from "./CurationCategorySidebar";
 
 export default function RightSidebar() {
+  const pathname = usePathname();
+  const isEditorPickCuration = pathname.includes("/editor-pick/curation");
+  const isEditorPick = pathname.includes("/editor-pick");
+  const shouldFetchTrending = !isEditorPick;
+
+  const [postsPage, setPostsPage] = useState(1);
+
   const {
     data: trendingPostsData,
     isLoading,
@@ -15,6 +24,7 @@ export default function RightSidebar() {
   } = useQuery({
     queryKey: ["trendingPosts"],
     queryFn: getTrendingPosts,
+    enabled: shouldFetchTrending,
   });
 
   const {
@@ -24,9 +34,8 @@ export default function RightSidebar() {
   } = useQuery({
     queryKey: ["trendingUsers"],
     queryFn: getTrendingUsers,
+    enabled: shouldFetchTrending,
   });
-
-  const [postsPage, setPostsPage] = useState(1);
 
   // 페이지네이션을 위한 데이터 슬라이싱
   const itemsPerPage = 5;
@@ -35,8 +44,16 @@ export default function RightSidebar() {
   const currentPagePosts = trendingPostsData?.slice(startIndex, endIndex) || [];
   const totalPages = Math.ceil((trendingPostsData?.length || 0) / itemsPerPage);
 
+  if (isEditorPickCuration) {
+    return null;
+  }
+
+  if (isEditorPick) {
+    return <CurationCategorySidebar />;
+  }
+
   return (
-    <div className="mr-[18px] flex h-auto min-h-[558px] w-[324px] flex-col gap-8 p-4">
+    <div className="sticky top-4 mr-[18px] hidden h-auto min-h-[558px] w-[324px] flex-col gap-8 p-4 lg:flex">
       {/* 트렌딩 픽더맨 섹션 */}
       <div className="w-[288px]">
         <SectionTitle title="트렌딩 핏더맨" />
@@ -81,6 +98,7 @@ export default function RightSidebar() {
             {currentPagePosts.map((post) => (
               <TrendingPostItem
                 key={post.postId}
+                postId={post.postId}
                 num={post.ranking}
                 title={post.title}
                 viewCount={post.viewCount.toString()}

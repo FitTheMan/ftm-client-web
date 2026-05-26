@@ -102,7 +102,7 @@ const WritePage = () => {
         productImageFiles, // 상품 이미지 파일들 배열
       };
 
-      console.log("postData", postData);
+      console.log("postData11", postData);
 
       await createPost(postData);
       router.push("/user-pick");
@@ -126,11 +126,7 @@ const WritePage = () => {
       component: (
         <FilterPopup
           onClose={() => hideModal()}
-          onApply={(
-            selectedCategories: string[],
-            selectedTags: { id: string; label: string }[]
-          ) => {
-            // selectedTags는 이제 id와 label 객체 배열로 전달됨
+          onApply={({ selectedTags }) => {
             setHashtags(selectedTags);
             hideModal();
           }}

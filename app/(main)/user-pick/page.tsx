@@ -1,169 +1,313 @@
 "use client";
-import { FiBookmark, FiThumbsUp, FiEdit } from "react-icons/fi";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { FiEdit } from "react-icons/fi";
 import SectionHeader from "../components/header/SectionHeader";
-import Image from "next/image";
+import PostSection from "./components/PostSection";
+import HorizontalScrollSection from "./components/HorizontalScrollSection";
+import CategorySection, {
+  CategoryTab,
+  SortOption,
+} from "./components/CategorySection";
 import { useRouter } from "next/navigation";
+import {
+  getUserPickPopularPosts,
+  getUserPickBiblePosts,
+  getUserPickTopBookmarks,
+  getGroomingStoryPopularPosts,
+} from "./api";
+import { useInfiniteGroomingStory } from "@/hooks/useInfiniteGroomingStory";
+import { useSigninPromptOnScroll } from "@/hooks/useSigninPromptOnScroll";
+import { UserPickPost, PostData } from "./types";
+import { openSigninSelectModal } from "@/utils/modal/OpenSigninSelectModal";
+import { useAuthStore } from "@/stores/AuthStore";
+import type { GroomingFilterApplyPayload } from "../components/modal/FilterPopup";
 
-const userPicks = [
-  {
-    id: 1,
-    category: "라이프",
-    title: "남자 기초 화장품의 모든 것",
-    image: "/user-pick-test/images/user_pick_sample.png",
-    bookmarks: 0,
-    views: 0,
-  },
-  {
-    id: 2,
-    category: "디자인",
-    title: "퍼시스틴트 B2B 마케팅 전략: 3D 콘텐츠 세일즈로 리드를 확보...",
-    image: "/user-pick-test/images/user_pick_sample.png",
-    bookmarks: 0,
-    views: 0,
-  },
-  {
-    id: 3,
-    category: "디자인",
-    title: "남자 기초 화장품의 모든 것",
-    image: "/user-pick-test/images/user_pick_sample.png",
-    bookmarks: 0,
-    views: 0,
-  },
-  {
-    id: 4,
-    category: "디자인",
-    title: "남자 기초 화장품의 모든 것",
-    image: "/user-pick-test/images/user_pick_sample.png",
-    bookmarks: 0,
-    views: 0,
-  },
-  {
-    id: 5,
-    category: "디자인",
-    title: "남자 기초 화장품의 모든 것",
-    image: "/user-pick-test/images/user_pick_sample.png",
-    bookmarks: 0,
-    views: 0,
-  },
-  {
-    id: 6,
-    category: "디자인",
-    title: "남자 기초 화장품의 모든 것",
-    image: "/user-pick-test/images/user_pick_sample.png",
-    bookmarks: 0,
-    views: 0,
-  },
-];
+// API 데이터를 PostSection에서 사용하는 형태로 변환하는 함수
+const transformApiDataToPostData = (apiData: UserPickPost[]): PostData[] => {
+  return apiData.map((post) => ({
+    id: post.postId,
+    title: post.title,
+    image: post.imageUrl.startsWith("http")
+      ? post.imageUrl
+      : `https://${post.imageUrl}`,
+    author: post.authorName,
+    likes: post.likeCount,
+    bookmarks: post.scrapCount,
+    tags: post.hashtags,
+    ranking: post.ranking,
+    userBookmarkYn: post.userBookmarkYn || false,
+  }));
+};
+
+function filterPostsByGroomingFilter(
+  posts: PostData[],
+  filter: GroomingFilterApplyPayload | null
+): PostData[] {
+  if (!filter) return posts;
+
+  const { selectedTags, categoryHashtagKeys } = filter;
+
+  if (selectedTags.length > 0) {
+    return posts.filter((post) => {
+      const tags = post.tags ?? [];
+      return selectedTags.some(
+        (t) => tags.includes(t.id) || tags.includes(t.label)
+      );
+    });
+  }
+
+  if (categoryHashtagKeys.length > 0) {
+    return posts.filter((post) => {
+      const tags = post.tags ?? [];
+      return categoryHashtagKeys.some((key) => tags.includes(key));
+    });
+  }
+
+  return posts;
+}
 
 export default function UserPick() {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const [activeCategory, setActiveCategory] =
+    useState<CategoryTab>("grooming-award");
+  const [sortOption, setSortOption] = useState<SortOption>("latest");
+  const [groomingFilter, setGroomingFilter] =
+    useState<GroomingFilterApplyPayload | null>(null);
+
+  useSigninPromptOnScroll(!user);
+
+  // useQuery로 API 호출 - 그루밍 어워드일 때만 활성화
+  const {
+    data: popularPostsResponse,
+    isLoading: isLoadingPopular,
+    error: errorPopular,
+  } = useQuery({
+    queryKey: ["userPickPopularPosts", user?.id],
+    queryFn: getUserPickPopularPosts,
+    enabled: activeCategory === "grooming-award",
+    // staleTime: 5 * 60 * 1000, // 5분
+    // gcTime: 10 * 60 * 1000, // 10분
+  });
+
+  const {
+    data: biblePostsResponse,
+    isLoading: isLoadingBible,
+    error: errorBible,
+  } = useQuery({
+    queryKey: ["userPickBiblePosts", user?.id],
+    queryFn: getUserPickBiblePosts,
+    enabled: activeCategory === "grooming-award",
+    // staleTime: 5 * 60 * 1000, // 5분
+    // gcTime: 10 * 60 * 1000, // 10분
+  });
+
+  const {
+    data: topBookmarksResponse,
+    isLoading: isLoadingTopBookmarks,
+    error: errorTopBookmarks,
+  } = useQuery({
+    queryKey: ["userPickTopBookmarks", user?.id],
+    queryFn: getUserPickTopBookmarks,
+    enabled: activeCategory === "grooming-award",
+    // staleTime: 5 * 60 * 1000, // 5분
+    // gcTime: 10 * 60 * 1000, // 10분
+  });
+
+  // API 데이터를 PostSection 형태로 변환
+  const popularPosts: PostData[] = popularPostsResponse?.data
+    ? transformApiDataToPostData(popularPostsResponse.data)
+    : [];
+
+  const biblePosts: PostData[] = biblePostsResponse?.data
+    ? transformApiDataToPostData(biblePostsResponse.data)
+    : [];
+
+  const topBookmarksPosts: PostData[] = topBookmarksResponse?.data
+    ? transformApiDataToPostData(topBookmarksResponse.data)
+    : [];
+
+  // 그루밍 이야기 무한 스크롤 (최신순)
+  const {
+    data: groomingStoryData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isLoadingGroomingStory,
+    error: errorGroomingStory,
+  } = useInfiniteGroomingStory({
+    limit: 5,
+    enabled: activeCategory === "grooming-story" && sortOption === "latest",
+  });
+
+  // 그루밍 이야기 인기순 API 호출
+  const {
+    data: groomingStoryPopularData,
+    fetchNextPage: fetchNextPagePopular,
+    hasNextPage: hasNextPagePopular,
+    isFetchingNextPage: isFetchingNextPagePopular,
+    isLoading: isLoadingGroomingStoryPopular,
+    error: errorGroomingStoryPopular,
+  } = useInfiniteGroomingStory({
+    limit: 5,
+    enabled: activeCategory === "grooming-story" && sortOption === "popular",
+    apiFunction: getGroomingStoryPopularPosts,
+  });
+
+  // 그루밍 이야기 데이터 변환 (정렬 옵션에 따라 다른 데이터 사용)
+  const groomingStoryPosts: PostData[] =
+    sortOption === "latest"
+      ? groomingStoryData?.pages
+        ? groomingStoryData.pages.flatMap((page) =>
+            transformApiDataToPostData(page.data.data)
+          )
+        : []
+      : groomingStoryPopularData?.pages
+        ? groomingStoryPopularData.pages.flatMap((page) =>
+            transformApiDataToPostData(page.data.data)
+          )
+        : [];
+
+  const filteredPopularPosts = filterPostsByGroomingFilter(
+    popularPosts,
+    groomingFilter
+  );
+  const filteredBiblePosts = filterPostsByGroomingFilter(
+    biblePosts,
+    groomingFilter
+  );
+  const filteredTopBookmarksPosts = filterPostsByGroomingFilter(
+    topBookmarksPosts,
+    groomingFilter
+  );
+  const filteredGroomingStoryPosts = filterPostsByGroomingFilter(
+    groomingStoryPosts,
+    groomingFilter
+  );
+
   return (
     <>
       <div className="mx-auto mt-8 w-full max-w-[808px] px-4">
-        <SectionHeader title="유저 Pick" />
+        <SectionHeader title="그루밍 라운지" hasIcon={true} />
       </div>
 
-      <div className="relative mx-auto mt-8 w-full max-w-[808px] px-4">
-        <h3 className="text-lg font-medium">인기있는 글</h3>
-        <p className="mt-1 text-sm text-gray-500">
-          지금 사람들은 유저들을 위한 바이블
-        </p>
+      {/* 카테고리 섹션 */}
+      <CategorySection
+        className="mt-10"
+        onCategoryChange={setActiveCategory}
+        onSortChange={setSortOption}
+        appliedGroomingFilter={groomingFilter}
+        onGroomingFilterApply={(payload) => {
+          if (
+            payload.selectedTags.length === 0 &&
+            payload.categoryHashtagKeys.length === 0
+          ) {
+            setGroomingFilter(null);
+          } else {
+            setGroomingFilter(payload);
+          }
+        }}
+      />
 
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-2">
-          {userPicks.map((pick) => (
-            <div
-              key={pick.id}
-              className="relative mx-auto flex w-full flex-col overflow-hidden md:w-[392px]"
-              onClick={() => router.push(`/user-pick/${pick.id}`)}
-            >
-              <div className="relative h-[264px] w-full overflow-hidden rounded-lg">
-                <div className="absolute left-4 right-4 top-4 z-10 flex flex-row items-center justify-between">
-                  <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#ffffff]">
-                    <div className="flex items-center text-center text-2xl font-bold leading-[24px] text-[#374254]">
-                      {pick.id}
-                    </div>
-                  </div>
-                  <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#ffffff]">
-                    <FiBookmark className="h-6 w-6 text-gray-600" />
-                  </div>
-                </div>
-                <div className="relative h-full w-full">
-                  <Image
-                    src={pick.image}
-                    alt="thumbnail"
-                    fill
-                    objectFit="cover"
-                    sizes="(min-width: 768px) 392px, 100vw"
-                  />
-                </div>
-              </div>
+      {/* 그루밍 어워드일 때만 기존 섹션들 표시 */}
+      {activeCategory === "grooming-award" && (
+        <>
+          {/* 요즘 인기있는 글 섹션 - API 데이터 연동 */}
+          <PostSection
+            title="요즘 인기있는 글"
+            subtitle={
+              isLoadingPopular
+                ? "데이터를 불러오는 중..."
+                : errorPopular
+                  ? "데이터 로딩 실패 - 기본 데이터 표시 중"
+                  : "지금 사람들은 유저들을 위한 바이블"
+            }
+            posts={filteredPopularPosts}
+            layout="2x2-grid"
+            showRanking={true}
+            sectionType="popular"
+          />
 
-              <div className="pt-3">
-                <div className="flex flex-col items-start justify-start gap-2">
-                  <div className="flex w-full flex-row items-center justify-between">
-                    <div className="text-sm leading-none text-[#6f7c90]">
-                      핏더맨
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex items-center gap-1.5">
-                        <FiThumbsUp className="h-4 w-4 text-[#6f7c90]" />
-                        <span className="text-sm leading-none text-[#6f7c90]">
-                          00
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <FiBookmark className="h-4 w-4 text-[#6f7c90]" />
-                        <span className="text-sm leading-none text-[#6f7c90]">
-                          00
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+          {/* 다시 찾아보고 싶은 그루밍 섹션 - API 데이터 연동 */}
+          <HorizontalScrollSection
+            title="다시 찾아보고 싶은 그루밍"
+            subtitle={
+              isLoadingTopBookmarks
+                ? "데이터를 불러오는 중..."
+                : errorTopBookmarks
+                  ? "데이터 로딩 실패 - 기본 데이터 표시 중"
+                  : "북마크가 가장 많은 게시물"
+            }
+            posts={filteredTopBookmarksPosts}
+            sectionType="topBookmarks"
+          />
 
-                  <div className="flex w-full items-center">
-                    <h2 className="text-lg font-semibold leading-normal text-[#374254]">
-                      {pick.title}
-                    </h2>
-                  </div>
+          {/* 그루밍 바이블 섹션 - API 데이터 연동 */}
+          <PostSection
+            title="그루밍 바이블"
+            subtitle={
+              isLoadingBible
+                ? "데이터를 불러오는 중..."
+                : errorBible
+                  ? "데이터 로딩 실패 - 기본 데이터 표시 중"
+                  : "좋아요가 가장 많은 게시물"
+            }
+            posts={filteredBiblePosts}
+            layout="2x2-grid"
+            showRanking={false}
+            sectionType="bible"
+          />
+        </>
+      )}
 
-                  <div className="flex flex-wrap gap-1">
-                    <div className="flex h-6 items-center rounded-[6px] bg-[#e1e1e7] px-2">
-                      <div className="text-xs font-medium leading-none text-[#374254]">
-                        프레그런스
-                      </div>
-                    </div>
-                    <div className="flex h-6 items-center rounded-[6px] bg-[#e1e1e7] px-2">
-                      <div className="text-xs font-medium leading-none text-[#374254]">
-                        향수
-                      </div>
-                    </div>
-                    <div className="flex h-6 items-center rounded-[6px] bg-[#e1e1e7] px-2">
-                      <div className="text-xs font-medium leading-none text-[#374254]">
-                        헤어 스타일링
-                      </div>
-                    </div>
-                    <div className="flex h-6 items-center rounded-[6px] bg-[#e1e1e7] px-2">
-                      <div className="text-xs font-medium leading-none text-[#374254]">
-                        헤어 스타일링
-                      </div>
-                    </div>
-                    <div className="flex h-6 items-center rounded-[6px] bg-[#e1e1e7] px-2">
-                      <div className="text-xs font-medium leading-none text-[#374254]">
-                        헤어 스타일링
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* 그루밍 이야기일 때 컨텐츠 표시 */}
+      {activeCategory === "grooming-story" && (
+        <PostSection
+          title="요즘 인기있는 글"
+          subtitle={
+            sortOption === "latest"
+              ? isLoadingGroomingStory
+                ? "데이터를 불러오는 중..."
+                : errorGroomingStory
+                  ? "데이터 로딩 실패"
+                  : "최신순으로 정렬된 게시물"
+              : isLoadingGroomingStoryPopular
+                ? "데이터를 불러오는 중..."
+                : errorGroomingStoryPopular
+                  ? "데이터 로딩 실패"
+                  : "인기순으로 정렬된 게시물"
+          }
+          posts={filteredGroomingStoryPosts}
+          layout="3-column"
+          showRanking={false}
+          sectionType="groomingStory"
+          hasNextPage={
+            sortOption === "latest" ? hasNextPage : hasNextPagePopular
+          }
+          isFetchingNextPage={
+            sortOption === "latest"
+              ? isFetchingNextPage
+              : isFetchingNextPagePopular
+          }
+          onLoadMore={() =>
+            sortOption === "latest" ? fetchNextPage() : fetchNextPagePopular()
+          }
+        />
+      )}
 
-        {/* 글쓰기 버튼 */}
-        <div className="sticky bottom-10 z-50 ml-auto mr-0 mt-10 w-fit">
+      {/* 글쓰기 버튼 */}
+      <div className="sticky bottom-10 z-50 mt-10">
+        <div className="mx-auto flex w-full max-w-[808px] justify-end px-4">
           <button
-            onClick={() => router.push("/write")}
-            className="relative h-[60px] w-[60px] cursor-pointer"
+            onClick={() => {
+              if (!user) {
+                openSigninSelectModal();
+              } else {
+                router.push("/write2");
+              }
+            }}
+            className="relative h-[60px] w-[60px] cursor-pointer min-[1020px]:translate-x-[calc(100%+40px)]"
           >
             <div
               className="absolute bottom-0 left-0 h-[60px] w-[60px] rounded-full bg-[#1481fd]"

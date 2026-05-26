@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { FiUser, FiBookmark, FiList } from "react-icons/fi";
 import SectionTitle from "../SectionTitle";
 import SideCategoryItem from "./SideCategoryItem";
 import ProfileCard from "./ProfileCard";
@@ -13,9 +12,11 @@ export default function LeftSidebar() {
   const router = useRouter();
 
   const getActiveMenuFromPath = useCallback(() => {
+    if (pathname.includes("/editor-pick/step-by-step")) return "step-by-step";
+    if (pathname.includes("/editor-pick")) return "핏더맨 큐레이션";
     if (pathname.includes("/user-pick/hash-tag")) return "해시태그 추천";
-    if (pathname.includes("/user-pick")) return "유형별 추천";
-    return "유형별 추천";
+    if (pathname.includes("/user-pick")) return "그루밍 라운지";
+    return "그루밍 라운지";
   }, [pathname]);
 
   const [activeMenu, setActiveMenu] = useState(getActiveMenuFromPath());
@@ -25,21 +26,29 @@ export default function LeftSidebar() {
     setActiveMenu(getActiveMenuFromPath());
   }, [getActiveMenuFromPath]);
 
+  // TODO: 스텝 바이 스텝 — 향후 개발 예정. 노출 시점에 주석 해제
   const allMenuItems = [
-    { id: "유형별 추천", icon: <FiUser />, label: "유형별 추천" },
-    { id: "해시태그 추천", icon: <FiBookmark />, label: "해시태그 추천" },
-    { id: "step-by-step", icon: <FiUser />, label: "Step by Step" },
-    { id: "핏더맨 큐레이션", icon: <FiList />, label: "핏더맨 큐레이션" },
+    { id: "그루밍 라운지", label: "그루밍 라운지" },
+    { id: "해시태그 추천", label: "해시태그 추천" },
+    // { id: "step-by-step", label: "스텝 바이 스텝" },
+    { id: "핏더맨 큐레이션", label: "핏더맨 큐레이션" },
   ];
 
   const userPickMenuItems = [
-    { id: "유형별 추천", icon: <FiUser />, label: "유형별 추천" },
-    { id: "해시태그 추천", icon: <FiBookmark />, label: "해시태그 추천" },
+    { id: "그루밍 라운지", label: "그루밍 라운지" },
+    { id: "해시태그 추천", label: "해시태그 추천" },
   ];
 
-  const menuItems = pathname.includes(ROUTES.USER_PICK)
-    ? userPickMenuItems
-    : allMenuItems;
+  const editorPickMenuItems = [
+    { id: "핏더맨 큐레이션", label: "핏더맨 큐레이션" },
+    // { id: "step-by-step", label: "스텝 바이 스텝" },
+  ];
+
+  const menuItems = pathname.includes(ROUTES.EDITOR_PICK)
+    ? editorPickMenuItems
+    : pathname.includes(ROUTES.USER_PICK)
+      ? userPickMenuItems
+      : allMenuItems;
 
   const handleMenuClick = (menuId: string) => {
     setActiveMenu(menuId);
@@ -47,15 +56,17 @@ export default function LeftSidebar() {
     // 해시태그 추천 클릭 시 user-pick 내 해시태그 페이지로 이동
     if (menuId === "해시태그 추천") {
       router.push(ROUTES.USER_PICK_HASH_TAG);
-    }
-    // 유형별 추천 클릭 시 user-pick 메인 페이지로 이동
-    else if (menuId === "유형별 추천") {
+    } else if (menuId === "그루밍 라운지") {
       router.push(ROUTES.USER_PICK);
+    } else if (menuId === "step-by-step") {
+      router.push(ROUTES.EDITOR_PICK_STEP_BY_STEP);
+    } else if (menuId === "핏더맨 큐레이션") {
+      router.push(ROUTES.EDITOR_PICK);
     }
   };
 
   return (
-    <div className="ml-[18px] flex h-auto min-h-[558px] w-[324px] flex-col gap-[110px] p-4">
+    <div className="sticky top-4 ml-[18px] flex h-auto min-h-[558px] w-[324px] flex-col gap-[110px] p-4">
       <div className="min-h-[200px] w-[288px]">
         <SectionTitle title="마이 프로필" />
         <ProfileCard />
@@ -66,7 +77,6 @@ export default function LeftSidebar() {
           {menuItems.map((item) => (
             <SideCategoryItem
               key={item.id}
-              icon={item.icon}
               label={item.label}
               isActive={activeMenu === item.id}
               onClick={() => handleMenuClick(item.id)}

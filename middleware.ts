@@ -3,14 +3,17 @@ import type { NextRequest } from "next/server";
 import { ROUTES } from "@/constants/routes";
 
 export async function middleware(request: NextRequest) {
-  const apiUrl = "https://dev-api.fittheman.site";
+  const apiUrl = "https://dev-api.fittheman.store";
   const sessionCookie = request.cookies.get("SESSION")?.value;
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
+  const isSocialSignup = searchParams.get("social") === "true";
 
   // 1. 로그인 상태인데 signin 또는 signup 접근 시 유저픽으로 리다이렉트
+  // 단, 소셜 회원가입(social=true)인 경우는 예외 처리
   if (
     sessionCookie &&
-    (pathname === ROUTES.SIGNIN || pathname === ROUTES.SIGNUP)
+    (pathname === ROUTES.SIGNIN || pathname === ROUTES.SIGNUP) &&
+    !isSocialSignup
   ) {
     return NextResponse.redirect(new URL(ROUTES.USER_PICK, request.url));
   }

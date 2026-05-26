@@ -156,3 +156,196 @@ export const createPost = async (
     throw error;
   }
 };
+
+/**
+ * 게시글 수정 API
+ *
+ * - 수정한 필드에 대해서만 요청 데이터에 담아서 요청합니다 (Partial Update).
+ * - 게시글 이미지 삭제: deletePostImageIds[]
+ * - 상품 추가: addProducts[]
+ * - 상품 수정: updateProducts[] (이미지 변경 시 deleteProductImageId + imageIndex 함께 사용)
+ * - 상품 삭제: deleteProductIds[]
+ */
+export interface AddPostProduct {
+  imageIndex: number; // 1부터 시작, 이미지 미등록 시 -1 (필수)
+  name: string; // 상품 이름 (필수)
+  brand?: string; // 상품 브랜드
+  hashtags?: string[]; // 상품 해시태그 목록
+}
+
+export interface UpdatePostProduct {
+  id: number; // 수정할 상품 ID (필수)
+  imageIndex: number; // 1부터 시작, 이미지 미등록/유지 시 -1 (필수)
+  name?: string; // 수정된 상품 이름
+  brand?: string; // 수정된 상품 브랜드
+  hashtags?: string[]; // 수정된 상품 해시태그 목록
+  deleteProductImageId?: number; // 삭제할 상품 이미지 ID (이미지 삭제/변경 시 필수)
+}
+
+export interface UpdatePostData {
+  title?: string; // 게시글 제목
+  hashtags?: string[]; // 게시글 해시태그 목록
+  content?: string; // 게시글 내용
+  deletePostImageIds?: number[]; // 삭제할 게시글 이미지 ID 목록
+  deleteProductIds?: number[]; // 삭제할 상품 ID 목록
+  addProducts?: AddPostProduct[]; // 새로 추가할 상품 목록
+  updateProducts?: UpdatePostProduct[]; // 수정할 상품 목록
+  postImageFiles?: File[]; // 새로 추가할 게시글 이미지 파일 리스트 (순서 보장)
+  productImageFiles?: File[]; // 새로 추가할 상품 이미지 파일 리스트 (순서 보장)
+}
+
+export interface UpdatePostResponse {
+  postId: number;
+  updatedAt: string;
+}
+
+export const updatePost = async (
+  postId: string | number,
+  postData: UpdatePostData
+): Promise<ApiResponse<UpdatePostResponse>> => {
+  try {
+    const formData = new FormData();
+
+    // 변경된 필드만 JSON에 포함 (undefined는 제외)
+    const jsonData: Record<string, unknown> = {};
+    if (postData.title !== undefined) jsonData.title = postData.title;
+    if (postData.hashtags !== undefined) jsonData.hashtags = postData.hashtags;
+    if (postData.content !== undefined) jsonData.content = postData.content;
+    if (postData.deletePostImageIds !== undefined)
+      jsonData.deletePostImageIds = postData.deletePostImageIds;
+    if (postData.deleteProductIds !== undefined)
+      jsonData.deleteProductIds = postData.deleteProductIds;
+    if (postData.addProducts !== undefined)
+      jsonData.addProducts = postData.addProducts;
+    if (postData.updateProducts !== undefined)
+      jsonData.updateProducts = postData.updateProducts;
+
+    const jsonBlob = new Blob([JSON.stringify(jsonData)], {
+      type: "application/json",
+    });
+    formData.append("data", jsonBlob);
+
+    if (postData.postImageFiles) {
+      postData.postImageFiles.forEach((image) => {
+        formData.append("postImageFiles", image);
+      });
+    }
+
+    if (postData.productImageFiles) {
+      postData.productImageFiles.forEach((image) => {
+        formData.append("productImageFiles", image);
+      });
+    }
+
+    const response = await authApi.patch<ApiResponse<UpdatePostResponse>>(
+      `${BASE_PATH}/${postId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("게시글 수정 실패:", error);
+    throw error;
+  }
+};
+
+/**
+ * 게시글 삭제 API
+ */
+export const deletePost = async (
+  postId: string | number
+): Promise<ApiResponse<{ message: string }>> => {
+  try {
+    const response = await authApi.delete<ApiResponse<{ message: string }>>(
+      `${BASE_PATH}/${postId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("게시글 삭제 실패:", error);
+    throw error;
+  }
+};
+
+/**
+ * 게시글 좋아요 API
+ */
+export interface PostLikeResponse {
+  isCreated: boolean;
+}
+
+export const createPostLike = async (
+  postId: string | number
+): Promise<ApiResponse<PostLikeResponse>> => {
+  try {
+    const response = await authApi.post<ApiResponse<PostLikeResponse>>(
+      `${BASE_PATH}/${postId}/like`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("게시글 좋아요 실패:", error);
+    throw error;
+  }
+};
+
+/**
+ * 해시태그 상품 추천 좋아요 API
+ */
+export interface ProductLikeResponse {
+  isCreated: boolean;
+}
+
+export const createProductLike = async (
+  productId: string | number
+): Promise<ApiResponse<ProductLikeResponse>> => {
+  try {
+    const response = await authApi.post<ApiResponse<ProductLikeResponse>>(
+      `/api/products/${productId}/like`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("상품 좋아요 실패:", error);
+    throw error;
+  }
+};
+
+/**
+ * 해시태그로 상품 목록 조회 API
+ */
+export interface ProductByHashtag {
+  productId: number;
+  productName: string;
+  brand: string;
+  recommendedCount: number;
+  postId: number;
+  productImage: string;
+  likeYn: boolean;
+}
+
+export interface ProductsByHashtagResponse {
+  data: ProductByHashtag[];
+  hasNext: boolean;
+  lastScore: number;
+}
+
+export interface ProductsByHashtagRequest {
+  hashTagList: string[];
+}
+
+export const getProductsByHashtags = async (
+  request: ProductsByHashtagRequest
+): Promise<ApiResponse<ProductsByHashtagResponse>> => {
+  try {
+    const response = await api.post<ApiResponse<ProductsByHashtagResponse>>(
+      `${BASE_PATH}/products?size=20`,
+      request
+    );
+    return response.data;
+  } catch (error) {
+    console.error("해시태그 상품 조회 실패:", error);
+    throw error;
+  }
+};

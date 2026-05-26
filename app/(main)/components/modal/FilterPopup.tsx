@@ -7,15 +7,27 @@ interface FilterTag {
   label: string;
 }
 
+/** 필터 적용 시 부모에서 클라이언트 필터링에 사용 */
+export type GroomingFilterApplyPayload = {
+  selectedTags: { id: string; label: string }[];
+  /** 카테고리만 선택한 경우: 해당 카테고리 해시태그 name·tag 전부 */
+  categoryHashtagKeys: string[];
+  /** 팝업 재오픈 시 선택 UI 복원용 (category.name) */
+  selectedCategoryName: string | null;
+};
+
 interface FilterPopupProps {
   onClose: () => void;
-  onApply: (
-    selectedCategories: string[],
-    selectedTags: { id: string; label: string }[]
-  ) => void;
+  onApply: (payload: GroomingFilterApplyPayload) => void;
+  /** 적용 중인 필터 — 팝업을 다시 열었을 때 선택 상태 복원 */
+  appliedFilter?: GroomingFilterApplyPayload | null;
 }
 
-export default function FilterPopup({ onClose, onApply }: FilterPopupProps) {
+export default function FilterPopup({
+  onClose,
+  onApply,
+  appliedFilter = null,
+}: FilterPopupProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [categories, setCategories] = useState<FilterTag[]>([]);
@@ -69,15 +81,24 @@ export default function FilterPopup({ onClose, onApply }: FilterPopupProps) {
     fetchFilterData();
   }, []);
 
-  const toggleCategory = (categoryId: string) => {
-    // 같은 카테고리 클릭 시 선택 해제, 다른 카테고리 클릭 시 선택
-    if (selectedCategory === categoryId) {
+  useEffect(() => {
+    if (loading) return;
+
+    if (!appliedFilter) {
       setSelectedCategory("");
       setSelectedTags([]);
-    } else {
-      setSelectedCategory(categoryId);
-      setSelectedTags([]);
+      return;
     }
+
+    setSelectedCategory(appliedFilter.selectedCategoryName ?? "");
+    setSelectedTags(appliedFilter.selectedTags.map((t) => t.id));
+  }, [loading, appliedFilter]);
+
+  const toggleCategory = (categoryId: string) => {
+    // 카테고리는 화면 표시(view)만 토글한다. 선택된 태그는 카테고리를
+    // 바꾸거나 같은 카테고리를 다시 눌러도 유지되어, 여러 카테고리에서
+    // 누적 선택이 가능하다. 개별 해제는 태그 버튼으로 한다.
+    setSelectedCategory((prev) => (prev === categoryId ? "" : categoryId));
   };
 
   const toggleTag = (tagId: string) => {
@@ -89,16 +110,33 @@ export default function FilterPopup({ onClose, onApply }: FilterPopupProps) {
   };
 
   const handleApply = () => {
-    const selectedCategories = selectedCategory ? [selectedCategory] : [];
-    // 선택된 태그들의 id를 id와 label 객체로 변환
-    const selectedTagObjects = selectedTags.map((tagId) => {
-      const tag = filteredTags.find((t) => t.id === tagId);
-      return tag
-        ? { id: tag.id, label: tag.label }
-        : { id: tagId, label: tagId };
+    const categoryInfo = selectedCategory
+      ? categoryData.find((item) => item.category.name === selectedCategory)
+      : undefined;
+    const categoryHashtagKeys = categoryInfo
+      ? Array.from(
+          new Set(categoryInfo.hashtags.flatMap((h) => [h.name, h.tag]))
+        )
+      : [];
+
+    // 선택된 태그가 여러 카테고리에 걸쳐 있을 수 있으므로 전 카테고리에서 라벨을 조회한다
+    const hashtagLabelMap = new Map<string, string>();
+    categoryData.forEach((item) => {
+      item.hashtags.forEach((h) => {
+        hashtagLabelMap.set(h.name, h.tag);
+      });
     });
-    console.log("selectedTagObjects", selectedTagObjects);
-    onApply(selectedCategories, selectedTagObjects);
+
+    const selectedTagObjects = selectedTags.map((tagId) => ({
+      id: tagId,
+      label: hashtagLabelMap.get(tagId) ?? tagId,
+    }));
+
+    onApply({
+      selectedTags: selectedTagObjects,
+      categoryHashtagKeys,
+      selectedCategoryName: selectedCategory || null,
+    });
   };
 
   if (loading) {

@@ -11,11 +11,37 @@ const config: Config = {
       screens: {
         sm: "543px",
         md: "879px",
-        lg: "1503px",
+        lg: "1356px",
         xl: "1920px",
       },
       fontFamily: {
         pretendard: ["Pretendard Variable", "sans-serif"],
+      },
+      keyframes: {
+        "slide-down": {
+          "0%": {
+            opacity: "0",
+            transform: "translateY(-20px)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        "slide-up": {
+          "0%": {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+          "100%": {
+            opacity: "0",
+            transform: "translateY(-20px)",
+          },
+        },
+      },
+      animation: {
+        "slide-down": "slide-down 0.3s ease-out",
+        "slide-up": "slide-up 0.3s ease-out",
       },
       colors: {
         primary: "#374254",
