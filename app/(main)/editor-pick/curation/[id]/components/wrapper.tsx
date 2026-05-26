@@ -6,7 +6,7 @@ export default function Wrapper({ data }: { data: CurationDetailType }) {
   const { date, title, paragraphs, mainImage, editorComment } = data;
 
   return (
-    <section className="absolute mt-20 px-[36px] lg:px-0 lg:pr-20">
+    <section className="absolute mt-20 px-[36px] pb-20 lg:px-0 lg:pr-20">
       <section className="flex flex-col justify-between gap-10 lg:flex-row lg:gap-0">
         <div className="flex flex-col justify-between gap-5 lg:gap-0">
           <div className="flex justify-between">
@@ -37,7 +37,7 @@ export default function Wrapper({ data }: { data: CurationDetailType }) {
 
       <ContentSection data={data} />
 
-      <footer className="flex gap-12 bg-[#1481FD] px-16 py-12 text-lg text-white">
+      <footer className="flex flex-col gap-6 bg-[#1481FD] px-16 py-12 text-lg text-white lg:flex-row lg:gap-12">
         <h4 className="shrink-0">에디터의 한 마디</h4>
         <div dangerouslySetInnerHTML={{ __html: editorComment }} />
       </footer>
